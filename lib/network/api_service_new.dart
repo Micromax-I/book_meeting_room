@@ -5,14 +5,14 @@ import 'package:dio/dio.dart';
 class ApiServiceNew {
   static final Dio _dio = Dio(
     BaseOptions(
-      // baseUrl: 'https://ess.bhagwati.co/essapps/Api',
-      baseUrl: 'http://10.111.225.143/essappservice/Api',
+       baseUrl: 'https://ess.bhagwati.co/meeting/Api',
+      //baseUrl: 'http://10.111.225.143/essappservice/Api',
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       headers: {
         'Content-Type': 'application/json',
-        'servicename': 'cab-booking',
-        'x-api-key': '0KFXhPeMc12l9ZCSXMYnHgPOQnJC1c7ixvfKklPhFow=',
+        'servicename': 'bookingmeetingroom',
+        'x-api-key': 'CZWxh+4mXI4RCNIVStNZx/un+ykwnJqDph5EBCECnww=',
       },
     ),
   );

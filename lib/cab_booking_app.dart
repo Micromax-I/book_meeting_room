@@ -2,8 +2,6 @@ import 'package:book_meeting_room/screens/login_screen.dart';
 import 'package:book_meeting_room/screens/splash_screen_new.dart';
 import 'package:flutter/material.dart';
 
-
-
 class CabBookingApp extends StatefulWidget {
   const CabBookingApp({super.key});
 

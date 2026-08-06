@@ -1,8 +1,14 @@
-
-import 'package:book_meeting_room/screens/login/status_screen.dart';
+import 'package:book_meeting_room/model/meeting_detail.dart';
 import 'package:flutter/material.dart';
 
-import '../cab_list_screen.dart';
+import '../../model/generic_response.dart';
+import '../../model/meeting_room_model.dart';
+import '../../network/api_service_new.dart';
+import '../../util/preference_helper.dart';
+import '../../widget/common_app_bar.dart';
+import '../../widget/ui_helper.dart';
+import '../book_screen.dart';
+import '../user_layout.dart';
 
 class HomeScreen extends StatefulWidget {
   final int isAdmin;
@@ -14,115 +20,171 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex = 0;
+  final prefs = PreferenceHelper();
+  String userId = "";
+  String userName = "";
+  bool isLoading = false;
+  List<MeetingDetail> bookedList = [];
+  List<MeetingRoomModel> roomList = [];
 
-  final List<String> pages = ["Cabs", "Status"];
-
-  void onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
   }
 
-  final List<Widget> screens = [CabListScreen(), StatusScreen()];
+  Future<void> _loadSavedData() async {
+    final uId = await prefs.getString('userName') ?? '';
+    final name = await prefs.getString('name') ?? '';
+    setState(() {
+      userId = uId;
+      userName = name;
+      getMeetingRoomList();
+      getCabData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: selectedIndex, children: screens),
-
-      bottomNavigationBar: SafeArea(
+      appBar: CommonAppBar(title: "Book Meeting Room", showBack: false),
+      body: Center(
         child: Container(
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 15,
-                offset: const Offset(0, -4),
-              ),
-            ],
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xffE3F2FD), Colors.white],
+            ),
           ),
-          child: Row(
+          child: Column(
             children: [
-              _buildNavItem(
-                title: "Book Cab",
-                icon: Icons.local_taxi,
-                index: 0,
+              UserLayout(userName: '$userName($userId)'),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                width: double.infinity,
+                height: 1,
+                color: Colors.grey.shade800, // line color
               ),
-              _buildNavItem(
-                title: widget.isAdmin == 0 ? "History" : 'Requests',
-                icon: Icons.assignment_outlined,
-                index: 1,
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: bookedList.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 10,
+                        shadowColor: Colors.red.shade50,
+                        margin: EdgeInsets.all(5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            // openAddBookingScreen(bookedList[index]);
+                          },
+                          child: ListTile(
+                            //leading: IconData,
+                            title: Text(bookedList[index].Purpose!),
+                            subtitle: Text(bookedList[index].RoomName!),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.event_note),
+
+        onPressed: () async {
+          openAddBookingScreen();
+        },
+      ),
     );
   }
 
-  Widget _buildNavItem({
-    required String title,
-    required IconData icon,
-    required int index,
-  }) {
-    bool selected = selectedIndex == index;
+  void getCabData() {
+    setState(() => isLoading = true);
 
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(15),
-          onTap: () {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient:
-                  selected
-                      ? const LinearGradient(
-                        colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                      : null,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(
-                    icon,
-                    key: ValueKey(selected),
-                    size: 22,
-                    color: selected ? Colors.white : Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 300),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                    color: selected ? Colors.white : Colors.grey.shade700,
-                  ),
-                  child: Text(title),
-                ),
-              ],
-            ),
+    ApiServiceNew.get(
+      endpoint: '/roombooking/getbookedmeetingroomlist',
+      fromJson:
+          (json) => GenericResponse<List<MeetingDetail>>.fromJson(
+            json,
+            (json) =>
+                (json as List<dynamic>)
+                    .map(
+                      (e) => MeetingDetail.fromJson(e as Map<String, dynamic>),
+                    )
+                    .toList(),
           ),
-        ),
+      onSuccess: (response) {
+        setState(() => isLoading = false);
+
+        if (response.Data == null || response.Data!.isEmpty) {
+          // UiHelper.showErrorDialog(context, 'No Record Found');
+        } else {
+          setState(() {
+            bookedList.clear();
+            bookedList.addAll(response.Data!);
+          });
+        }
+      },
+      onError: (error) {
+        setState(() => isLoading = false);
+        UiHelper.showErrorDialog(context, error);
+      },
+    );
+  }
+
+  void getMeetingRoomList() {
+    setState(() => isLoading = true);
+
+    ApiServiceNew.get(
+      endpoint: '/roombooking/getmeetingroomlist',
+      fromJson:
+          (json) => GenericResponse<List<MeetingRoomModel>>.fromJson(
+            json,
+            (json) =>
+                (json as List<dynamic>)
+                    .map(
+                      (e) =>
+                          MeetingRoomModel.fromJson(e as Map<String, dynamic>),
+                    )
+                    .toList(),
+          ),
+      onSuccess: (response) {
+        setState(() => isLoading = false);
+
+        if (response.Data == null || response.Data!.isEmpty) {
+          // UiHelper.showErrorDialog(context, 'No Record Found');
+        } else {
+          setState(() {
+            roomList.clear();
+
+            roomList.addAll(response.Data!);
+          });
+        }
+      },
+      onError: (error) {
+        setState(() => isLoading = false);
+        UiHelper.showErrorDialog(context, error);
+      },
+    );
+  }
+
+  void openAddBookingScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookScreen(meetingRoomList: roomList),
       ),
     );
   }
