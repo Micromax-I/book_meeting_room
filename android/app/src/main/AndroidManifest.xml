@@ -4,18 +4,15 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+        android:maxSdkVersion="35" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
 
 
     <application
         android:name="${applicationName}"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Book Meeting Room"
-        android:enableOnBackInvokedCallback="true"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
@@ -43,9 +40,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDab47aoEuUP58eKtiUJuOsbJ9-_V6u98I"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -39,7 +39,7 @@ class MeetingRepository {
           '/Account/GetAppVersion'
           '?VC=$versionCode'
           '&VN=$versionName'
-          '&AppID=Contract',
+          '&AppID=MeetingRoom',
 
       fromJson: (json) {
         return VersionResponse.fromJson(json);

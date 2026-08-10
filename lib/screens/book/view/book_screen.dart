@@ -1,15 +1,19 @@
-import 'package:book_meeting_room/model/meeting_room_model.dart';
+import 'package:book_meeting_room/core/widget/logo_ui.dart';
 import 'package:book_meeting_room/screens/book/viewmodel/booking_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../constants/app_colors.dart';
+import '../../../core/base/base_viewmodel.dart';
+import '../../../core/utils/date_helper.dart';
+import '../../../core/utils/time_slot_helper.dart';
+import '../../../core/widget/button_ui.dart';
 import '../../../util/preference_helper.dart';
 import '../../../widget/common_app_bar.dart';
 import '../../../widget/custom_date_picker_field.dart';
 import '../../../widget/custom_text_form_field.dart';
 import '../../../widget/ui_helper.dart';
+import '../widget/booking_room_dropdown.dart';
+import '../widget/booking_time_dropdown.dart';
 
 class BookScreen extends StatefulWidget {
   const BookScreen({super.key});
@@ -20,208 +24,97 @@ class BookScreen extends StatefulWidget {
 
 class _BookScreenState extends State<BookScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool isLoading = false;
-  var from = TextEditingController();
-  var to = TextEditingController();
-  var date = TextEditingController();
-  var building = TextEditingController();
-  var floor = TextEditingController();
-  var purpose = TextEditingController();
+
+  final fromController = TextEditingController();
+  final toController = TextEditingController();
+  final dateController = TextEditingController();
+  final buildingController = TextEditingController();
+  final floorController = TextEditingController();
+  final purposeController = TextEditingController();
+
   final prefs = PreferenceHelper();
-  String timeValue = "";
-  String userId = "";
-  String userName = "";
-  TimeOfDay? exitTime;
-  DateTime? _selectedDate;
-  String? selectedType;
-  String? meetingRoom;
 
-  MeetingRoomModel? selectedRoom;
+  String userId = '';
+  String userName = '';
+
   int? selectedMeetingRoomId;
-
   String? selectedFromTime;
   String? selectedToTime;
 
-  late List<String> fromSlots;
+  DateTime? selectedDate;
 
-  // late List<String> toSlots;
-
-  final InputDecoration dropdownDecoration = InputDecoration(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColor.primary_color),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColor.primary_color),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColor.primary_color),
-    ),
-  );
+  List<String> fromSlots = [];
 
   @override
   void initState() {
     super.initState();
-    fromSlots = generateTimeSlots(startHour: 9, endHour: 18, interval: 30);
-    // toSlots = generateTimeSlots(DateTime.now(), endHour: 18, interval: 30);
-    Future.microtask(() {
-      context.read<BookingViewModel>().loadMeetingRooms();
-    });
-    _loadSavedData();
+    _initialize();
   }
 
-  Future<void> _loadSavedData() async {
-    building.text = 'PDA';
-    floor.text = '1st Floor';
-    final uN = await prefs.getString('userId') ?? '';
-    final name = await prefs.getString('name') ?? '';
-    setState(() {
-      userId = uN;
-      userName = name;
-    });
+  Future<void> _initialize() async {
+    buildingController.text = 'PDA';
+    floorController.text = '1st Floor';
+
+    await _loadUserData();
+
+    if (!mounted) return;
+
+    context.read<BookingViewModel>().loadMeetingRooms();
+
+    _generateInitialTimeSlots();
+  }
+
+  Future<void> _loadUserData() async {
+    userId = await prefs.getString('userId') ?? '';
+    userName = await prefs.getString('name') ?? '';
+  }
+
+  void _generateInitialTimeSlots() {
+    fromSlots = TimeSlotHelper.generateSlots(
+      selectedDate: DateTime.now(),
+      startHour: 9,
+      endHour: 18,
+      endMinute: 30,
+      interval: 30,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<BookingViewModel>();
+
     return Scaffold(
       appBar: CommonAppBar(title: 'Book Meeting Room', showBack: false),
-      body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xffE3F2FD), Colors.white],
-            ),
-          ),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Image.asset(
-                      "assets/images/logo_bg.png",
-                      height: 120,
-                      fit: BoxFit.contain,
-                    ),
-                    Text(
-                      "Book Your Room",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    /*Text(
-                      "Safe • Fast • Comfortable",
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),*/
-                    SizedBox(height: 30),
-                    Column(
-                      children: [
-                        DropdownButtonFormField<int>(
-                          hint: Text('Select meeting room'),
-                          decoration: dropdownDecoration,
-                          value: selectedMeetingRoomId,
-                          items:
-                              vm.meetingRooms.map((room) {
-                                return DropdownMenuItem<int>(
-                                  value: room.MeetingRoomId,
-                                  child: Text(room.MeetingRoomName),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedMeetingRoomId = value;
-                            });
+      body: _buildBody(vm),
+    );
+  }
 
-                            print(selectedMeetingRoomId);
-                          },
-                        ),
-                        SizedBox(height: 10),
-                        CustomDatePickerField(
-                          controller: date,
-                          hintText: 'Select Date',
-                          onTap: () => openCalenderView(context),
-                          validator:
-                              (value) =>
-                                  (value == null || value.isEmpty)
-                                      ? 'Select date'
-                                      : null,
-                        ),
+  Widget _buildBody(BookingViewModel vm) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xffE3F2FD), Colors.white],
+        ),
+      ),
+      child: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                _buildHeader(),
 
-                        SizedBox(height: 10),
-                        _row('Building', building, Icons.apartment, true),
+                const SizedBox(height: 30),
 
-                        SizedBox(height: 10),
-                        _row('Floor', floor, Icons.stairs, true),
+                _buildBookingForm(vm),
 
-                        SizedBox(height: 10),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: buildTimeDropdown(
-                                from: true,
-                                hint: 'Select From Time',
-                                value: selectedFromTime,
-                                validationMessage: 'Please select from time',
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedFromTime = value;
-                                  });
-                                },
-                              ),
-                            ),
-
-                            const SizedBox(width: 10),
-
-                            Expanded(
-                              child: buildTimeDropdown(
-                                from: false,
-                                hint: 'Select To Time',
-                                value: selectedToTime,
-                                validationMessage: 'Please select to time',
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedToTime = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 10),
-                        _row('Purpose', purpose, Icons.comment, false),
-                        SizedBox(height: 10),
-
-                        SizedBox(height: 40),
-                        isLoading ? CircularProgressIndicator() : button(vm),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    /* Row(
-                      children: [
-                        Icon(Icons.verified, color: Colors.green),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Your booking will be confirmed after approval.",
-                          ),
-                        ),
-                      ],
-                    ),*/
-                  ],
-                ),
-              ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
         ),
@@ -229,306 +122,228 @@ class _BookScreenState extends State<BookScreen> {
     );
   }
 
-  Widget buildTimeDropdown({
-    required bool from,
-    required String hint,
-    required String? value,
-    required ValueChanged<String?> onChanged,
-    required String validationMessage,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: dropdownDecoration,
-      hint: Text(hint),
-      items:
-          /*from
-              ?*/
-          fromSlots
-              .map((time) => DropdownMenuItem(value: time, child: Text(time)))
-              .toList(),
-      /*: toSlots
-                  .map(
-                    (time) => DropdownMenuItem(value: time, child: Text(time)),
-                  )
-                  .toList()*/
-      validator: (value) => value == null ? validationMessage : null,
-      onChanged: onChanged /*(value) {
-        setState(() {
-          selectedFromTime = value;
-          selectedToTime = null;
-          toSlots = generateToSlots(value!, _selectedDate!);
-        });
-      }*/,
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        LogoUi(),
+
+        /* Image.asset(
+          'assets/images/logo_bg.png',
+          height: 120,
+          fit: BoxFit.contain,
+        ),*/
+        const Text(
+          'Book Your Room',
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 
-  String formatTimeOfDay(TimeOfDay tod) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    return DateFormat('hh:mm:ss a').format(dt); // or 'HH:mm'
+  Widget _buildBookingForm(BookingViewModel vm) {
+    return Column(
+      children: [
+        BookingRoomDropdown(
+          rooms: vm.meetingRooms,
+          selectedRoomId: selectedMeetingRoomId,
+          onChanged: (value) {
+            setState(() {
+              selectedMeetingRoomId = value;
+            });
+          },
+        ),
+
+        const SizedBox(height: 10),
+
+        CustomDatePickerField(
+          controller: dateController,
+          hintText: 'Select Date',
+          onTap: _selectDate,
+          validator: _requiredValidator('Select date'),
+        ),
+
+        const SizedBox(height: 10),
+
+        _buildBuildingField(),
+
+        const SizedBox(height: 10),
+
+        _buildFloorField(),
+
+        const SizedBox(height: 10),
+
+        _buildTimeFields(),
+
+        const SizedBox(height: 10),
+
+        _buildPurposeField(),
+
+        const SizedBox(height: 40),
+
+        _buildBookButton(vm),
+      ],
+    );
   }
 
-  Future<void> openCalenderView(BuildContext context) async {
-    _selectedDate = null;
-    var minDate = DateTime(2024, 6, 1);
-    final DateTime? picked = await showDatePicker(
+  Widget _buildBuildingField() {
+    return CustomTextFormField(
+      controller: buildingController,
+      hintText: 'Building',
+      keyboardType: TextInputType.text,
+      prefixIcon: Icons.apartment,
+      readOnly: false,
+      validator: _requiredValidator('Enter Building'),
+    );
+  }
+
+  Widget _buildFloorField() {
+    return CustomTextFormField(
+      controller: floorController,
+      hintText: 'Floor',
+      keyboardType: TextInputType.text,
+      prefixIcon: Icons.stairs,
+      readOnly: false,
+      validator: _requiredValidator('Enter Floor'),
+    );
+  }
+
+  Widget _buildPurposeField() {
+    return CustomTextFormField(
+      controller: purposeController,
+      hintText: 'Purpose',
+      keyboardType: TextInputType.text,
+      prefixIcon: Icons.comment,
+      readOnly: true,
+      validator: _requiredValidator('Enter Purpose'),
+    );
+  }
+
+  Widget _buildTimeFields() {
+    return Row(
+      children: [
+        Expanded(
+          child: BookingTimeDropdown(
+            hint: 'Select From Time',
+            value: selectedFromTime,
+            items: fromSlots,
+            validationMessage: 'Please select from time',
+            onChanged: (value) {
+              setState(() {
+                selectedFromTime = value;
+                // selectedToTime = null;
+              });
+            },
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: BookingTimeDropdown(
+            hint: 'Select To Time',
+            value: selectedToTime,
+            items: fromSlots,
+            validationMessage: 'Please select to time',
+            onChanged: (value) {
+              setState(() {
+                selectedToTime = value;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBookButton(BookingViewModel vm) {
+    if (vm.state == ViewState.loading) {
+      return const CircularProgressIndicator();
+    }
+
+    return ButtonUi(
+      icon: Icons.meeting_room,
+      title: 'BOOK MEETING ROOM',
+      onPressed: () => addBooking(vm),
+    );
+  }
+
+  String? Function(String?) _requiredValidator(String message) {
+    return (value) {
+      if (value == null || value.trim().isEmpty) {
+        return message;
+      }
+
+      return null;
+    };
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: minDate,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2024, 6, 1),
       lastDate: DateTime(2100),
     );
 
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        /*fromSlots = generateTimeSlots(
-          _selectedDate!,
-          endHour: 17,
-          interval: 30,
-        );*/
-        date.text =
-            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-      });
-    }
+    if (picked == null) return;
+
+    setState(() {
+      selectedDate = picked;
+      dateController.text = DateHelper.formatApiDate(picked);
+
+      fromSlots = TimeSlotHelper.generateSlots(
+        selectedDate: picked,
+        startHour: 9,
+        endHour: 17,
+        endMinute: 30,
+        interval: 30,
+      );
+
+      selectedFromTime = null;
+      selectedToTime = null;
+    });
   }
 
-  Widget _row(
-    String label,
-    TextEditingController controller,
-    IconData? prefixIcon,
-    bool isDisable,
-  ) {
-    return
-    /*Expanded(
-          flex: 2,
-          child: CustomText(
-            text: label,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 15,
-          ),
-        ),*/
-    CustomTextFormField(
-      controller: controller,
-      hintText: label,
-      keyboardType: TextInputType.text,
-      prefixIcon: prefixIcon,
-      readOnly: isDisable,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Enter $label';
-        }
-        return null;
-      },
-    );
+  Map<String, dynamic> _buildBookingRequest() {
+    return {
+      'MeetingRoomId': selectedMeetingRoomId,
+      'Building': buildingController.text.trim(),
+      'Floors': floorController.text.trim(),
+      'StartDateTime': '${dateController.text} $selectedFromTime:00',
+      'EndDateTime': '${dateController.text} $selectedToTime:00',
+      'Purpose': purposeController.text.trim(),
+      'CreatedBy': userId,
+    };
   }
 
   Future<void> addBooking(BookingViewModel vm) async {
-    if (_formKey.currentState!.validate()) {
-      final body = {
-        'MeetingRoomId': selectedMeetingRoomId,
-        'Building': building.text,
-        'Floors': floor.text,
-        'StartDateTime': "${date.text} ${selectedFromTime}:00",
-        'EndDateTime': "${date.text} ${selectedToTime}:00",
-        'Purpose': purpose.text,
-        'CreatedBy': userId,
-      };
-      print('Body-->$body');
-
-      final success = await vm.saveBookingRecord(body: body);
-      print('Body-->success-->$success');
-      if (success) {
-        // Booking successful
-        Navigator.pop(context);
-      } else {
-        // Show backend message
-        UiHelper.showErrorDialog(context, vm.errorMessage);
-      }
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final body = _buildBookingRequest();
+
+    final success = await vm.saveBookingRecord(body: body);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      return;
+    }
+
+    UiHelper.showErrorDialog(context, vm.errorMessage);
   }
 
-  button(BookingViewModel vm) {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-          ),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.35),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ElevatedButton.icon(
-          onPressed: () => addBooking(vm),
-          icon: const Icon(Icons.meeting_room, color: Colors.white),
-          label: const Text(
-            "BOOK MEETING ROOM",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  @override
+  void dispose() {
+    fromController.dispose();
+    toController.dispose();
+    dateController.dispose();
+    buildingController.dispose();
+    floorController.dispose();
+    purposeController.dispose();
 
-  /*List<String> generateTimeSlots({
-    int startHour = 9,
-    int endHour = 18,
-    int interval = 30,
-  }) {
-    final List<String> slots = [];
-
-    for (int hour = startHour; hour <= endHour; hour++) {
-      slots.add('${hour.toString().padLeft(2, '0')}:00');
-
-      if (hour != endHour) {
-        slots.add('${hour.toString().padLeft(2, '0')}:30');
-      }
-    }
-
-    return slots;
-  }*/
-
-  List<String> generateTimeSlots({
-    int startHour = 9,
-    int endHour = 18,
-    int interval = 30,
-  }) {
-    final List<String> slots = [];
-
-    DateTime current = DateTime(2026, 1, 1, startHour, 0);
-    final DateTime end = DateTime(2026, 1, 1, endHour, 30);
-
-    while (!current.isAfter(end)) {
-      slots.add(
-        '${current.hour.toString().padLeft(2, '0')}:'
-        '${current.minute.toString().padLeft(2, '0')}',
-      );
-
-      current = current.add(Duration(minutes: interval));
-    }
-
-    return slots;
-  }
-
-  List<String> generateTimeSlots1(
-    DateTime selectedDate, {
-    int startHour = 9,
-    int startMinute = 0,
-    int endHour = 18,
-    int endMinute = 0,
-    int interval = 30,
-  }) {
-    final List<String> slots = [];
-
-    final DateTime now = DateTime.now();
-
-    final bool isToday =
-        selectedDate.year == now.year &&
-        selectedDate.month == now.month &&
-        selectedDate.day == now.day;
-
-    DateTime startTime;
-
-    if (isToday) {
-      // Start from next available slot
-      int hour = now.hour;
-      int minute = now.minute;
-
-      if (minute == 0) {
-        minute = 0;
-      } else if (minute <= 30) {
-        minute = 30;
-      } else {
-        hour++;
-        minute = 0;
-      }
-
-      startTime = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        hour,
-        minute,
-      );
-
-      // Don't allow slots before office start time
-      final officeStart = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        startHour,
-        startMinute,
-      );
-
-      if (startTime.isBefore(officeStart)) {
-        startTime = officeStart;
-      }
-    } else {
-      startTime = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        startHour,
-        startMinute,
-      );
-    }
-
-    final endTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      endHour,
-      endMinute,
-    );
-
-    while (!startTime.isAfter(endTime)) {
-      slots.add(DateFormat('HH:mm').format(startTime));
-      startTime = startTime.add(Duration(minutes: interval));
-    }
-
-    return slots;
-  }
-
-  List<String> generateToSlots(String fromTime, DateTime selectedDate) {
-    final format = DateFormat('HH:mm');
-
-    DateTime start = format.parse(fromTime).add(const Duration(minutes: 30));
-
-    final end = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      18,
-      0,
-    );
-
-    final List<String> slots = [];
-
-    while (!start.isAfter(end)) {
-      slots.add(format.format(start));
-      start = start.add(const Duration(minutes: 30));
-    }
-
-    return slots;
+    super.dispose();
   }
 }

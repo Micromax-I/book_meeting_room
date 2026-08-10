@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreenNew>
 
     _scaleAnimation = Tween<double>(
       begin: 0.5, // Start small
-      end: 1.2, // End bigger
+      end: 1.0, // End bigger
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     // Navigate only AFTER animation completes

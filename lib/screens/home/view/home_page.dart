@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/base/base_viewmodel.dart';
 import '../../../core/widget/empty_state.dart';
 import '../../../core/widget/greeting_header.dart';
+import '../../../widget/common_app_bar.dart';
 import '../../book/view/book_screen.dart';
 import '../viewmodel/meeting_viewmodel.dart';
 import '../widget/booked_room_card.dart';
@@ -30,7 +31,7 @@ class _HomePageState extends State<HomePage> {
     final vm = context.watch<MeetingViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Book Meeting Room"), centerTitle: true),
+      appBar: CommonAppBar(title: 'Book Meeting Room', showBack: false),
 
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.event_note),

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
 
-
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -44,18 +43,21 @@ class CustomTextFormField extends StatelessWidget {
       obscureText: obscureText,
       validator: validator,
       maxLines: maxLines,
-      readOnly: readOnly,
+      enabled: readOnly,
       minLines: minLines,
       maxLength: maxLength,
       inputFormatters: allCaps ? [UpperCaseTextFormatter()] : [],
       decoration: InputDecoration(
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         prefixIconColor: AppColor.primary_color,
-        suffixIcon: suffixIcon != null ? IconButton(
-          icon: Icon(suffixIcon),
-          color: AppColor.primary_color,
-          onPressed: onSuffixIconPressed, // Pass the callback here
-        ) : null,
+        suffixIcon:
+            suffixIcon != null
+                ? IconButton(
+                  icon: Icon(suffixIcon),
+                  color: AppColor.primary_color,
+                  onPressed: onSuffixIconPressed, // Pass the callback here
+                )
+                : null,
         suffixIconColor: AppColor.primary_color,
         labelText: hintText,
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
