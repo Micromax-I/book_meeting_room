@@ -11,19 +11,11 @@ class LoginViewModel extends BaseViewModel {
 
   LoginViewModel({required this.repository, required this.prefs});
 
-  ViewState _state = ViewState.idle;
-
-  ViewState get state => _state;
-
-  String _errorMessage = '';
-
-  String get errorMessage => _errorMessage;
-
   EmployeeResponse? _employee;
 
   EmployeeResponse? get employee => _employee;
 
-  bool get isLoading => _state == ViewState.loading;
+  bool get isLoading => state == ViewState.loading;
 
   VersionResponse? _versionResponse;
 
@@ -35,8 +27,8 @@ class LoginViewModel extends BaseViewModel {
     required bool rememberMe,
   }) async {
     try {
-      _state = ViewState.loading;
-      _errorMessage = '';
+      state = ViewState.loading;
+      errorMessage = '';
       notifyListeners();
 
       final response = await repository.authenticateUser(
@@ -47,11 +39,7 @@ class LoginViewModel extends BaseViewModel {
       _employee = response;
 
       if (response?.Ecode == null) {
-        _state = ViewState.error;
-        _errorMessage = 'User id or password invalid';
-
-        notifyListeners();
-
+        setError('User id or password invalid');
         return false;
       }
 
@@ -62,18 +50,13 @@ class LoginViewModel extends BaseViewModel {
         response: response!,
       );
 
-      _state = ViewState.success;
+      state = ViewState.success;
 
       notifyListeners();
 
       return true;
     } catch (e) {
-      _state = ViewState.error;
-
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-
-      notifyListeners();
-
+      setError(e.toString().replaceFirst('Exception: ', ''));
       return false;
     }
   }
@@ -126,9 +109,8 @@ class LoginViewModel extends BaseViewModel {
   }
 
   void resetState() {
-    _state = ViewState.idle;
-    _errorMessage = '';
-
+    state = ViewState.idle;
+    errorMessage = '';
     notifyListeners();
   }
 
@@ -140,14 +122,9 @@ class LoginViewModel extends BaseViewModel {
       );
 
       _versionResponse = response;
-
       notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-
-      _state = ViewState.error;
-
-      notifyListeners();
+      setError(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

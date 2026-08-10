@@ -1,14 +1,19 @@
 import 'dart:ui';
 
+import 'package:book_meeting_room/core/widget/button_ui.dart';
 import 'package:book_meeting_room/screens/home/view/home_page.dart';
+import 'package:book_meeting_room/screens/login/widget/welcome_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/widget/logo_ui.dart';
 import '../../../util/alert.dart';
 import '../../../util/update_manager.dart';
 import '../../../widget/ui_helper.dart';
 import '../viewmodel/login_view_model.dart';
+import '../widget/app_text_field.dart';
+import '../widget/remember_me.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -160,54 +165,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 child: Column(
                   children: [
-                    // ------------------------------------------------
-                    // LOGO
-                    // ------------------------------------------------
-                    Hero(
-                      tag: "logo",
-
-                      child: Image.asset(
-                        "assets/images/logo_bg.png",
-                        height: 160,
-                      ),
-                    ),
+                    LogoUi(),
 
                     const SizedBox(height: 10),
 
-                    const Text(
-                      "Meeting Room Booking",
-
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff1565C0),
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    const Text(
-                      "Welcome Back 👋",
-
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    const Text(
-                      "Login to continue your booking",
-
-                      style: TextStyle(color: Colors.grey, fontSize: 15),
-                    ),
+                    WelcomeText(),
 
                     const SizedBox(height: 30),
 
-                    // ------------------------------------------------
-                    // LOGIN CARD
-                    // ------------------------------------------------
                     ClipRRect(
                       borderRadius: BorderRadius.circular(25),
 
@@ -235,125 +200,57 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           child: Column(
                             children: [
-                              // --------------------------------------
-                              // USERNAME
-                              // --------------------------------------
-                              TextFormField(
+                              AppTextField(
                                 controller: userName,
-
-                                decoration: InputDecoration(
-                                  hintText: "Employee ID",
-
-                                  prefixIcon: const Icon(Icons.person),
-
-                                  filled: true,
-
-                                  fillColor: Colors.white,
-
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Enter Employee ID";
-                                  }
-
-                                  return null;
-                                },
+                                hintText: 'Employee ID',
+                                prefixIcon: Icons.person,
+                                validatorMessage: 'Enter Employee ID',
                               ),
 
                               const SizedBox(height: 20),
 
-                              // --------------------------------------
-                              // PASSWORD
-                              // --------------------------------------
-                              TextFormField(
+                              AppTextField(
                                 controller: password,
-
+                                hintText: 'Password',
+                                prefixIcon: Icons.lock,
+                                validatorMessage: 'Enter Password',
                                 obscureText: !isPasswordVisible,
-
-                                decoration: InputDecoration(
-                                  hintText: "Password",
-
-                                  prefixIcon: const Icon(Icons.lock),
-
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      isPasswordVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                    ),
-
-                                    onPressed: () {
-                                      setState(() {
-                                        isPasswordVisible = !isPasswordVisible;
-                                      });
-                                    },
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
-
-                                  filled: true,
-
-                                  fillColor: Colors.white,
-
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: BorderSide.none,
-                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isPasswordVisible = !isPasswordVisible;
+                                    });
+                                  },
                                 ),
-
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Enter Password";
-                                  }
-
-                                  return null;
-                                },
                               ),
 
                               const SizedBox(height: 10),
 
-                              // --------------------------------------
-                              // REMEMBER ME
-                              // --------------------------------------
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    activeColor: Colors.blue,
-
-                                    value: rememberMe,
-
-                                    onChanged: (value) {
-                                      setState(() {
-                                        rememberMe = value ?? false;
-                                      });
-                                    },
-                                  ),
-
-                                  const Text(
-                                    "Remember Me",
-
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-
-                                  const Spacer(),
-                                ],
+                              RememberMe(
+                                value: rememberMe,
+                                onChanged: (value) {
+                                  setState(() {
+                                    rememberMe = value;
+                                  });
+                                },
                               ),
 
                               const SizedBox(height: 20),
 
-                              // --------------------------------------
-                              // LOGIN BUTTON
-                              // --------------------------------------
                               vm.isLoading
-                                  ? const Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                  : _buildLoginButton(),
+                                  ? Center(child: CircularProgressIndicator())
+                                  : ButtonUi(
+                                    icon: Icons.login,
+                                    title: 'LOGIN',
+                                    onPressed: () {
+                                      verifyUser();
+                                    },
+                                  ),
                             ],
                           ),
                         ),
@@ -365,60 +262,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ----------------------------------------------------------
-  // LOGIN BUTTON
-  // ----------------------------------------------------------
-
-  Widget _buildLoginButton() {
-    return Container(
-      width: double.infinity,
-      height: 55,
-
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-
-        gradient: const LinearGradient(
-          colors: [Color(0xff1565C0), Color(0xff42A5F5)],
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(.35),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-
-          shadowColor: Colors.transparent,
-
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-        ),
-
-        onPressed: verifyUser,
-
-        icon: const Icon(Icons.login, color: Colors.white),
-
-        label: const Text(
-          "LOGIN",
-
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
           ),
         ),
       ),

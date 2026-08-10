@@ -21,25 +21,21 @@ class ApiServiceNew {
   static Future<T?> get<T>({
     required String endpoint,
     required T Function(Map<String, dynamic>) fromJson,
-    required Function(T data) onSuccess,
-    required Function(String error) onError,
   }) async {
     try {
       final response = await _dio.get(endpoint);
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData = response.data;
-        final T model = fromJson(jsonData);
-        onSuccess(model);
+        return fromJson(jsonData);
       } else {
-        onError('Error: ${response.statusCode}');
+        throw Exception('Error: ${response.statusCode}');
       }
-      return fromJson(response.data);
     } on DioException catch (e) {
       log('GET Error: ${e.message}');
-      onError(e.message ?? 'Unknown error');
+      throw Exception(e.message ?? 'Unknown error');
     } catch (e) {
       log('Generic GET Error: $e');
-      onError(e.toString());
+      throw Exception(e.toString());
     }
     return null;
   }

@@ -59,14 +59,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBookingContent(MeetingViewModel vm) {
-
-    // 1. Loading
     if (vm.state == ViewState.loading) {
       print('-->_buildBookingContent-->loading');
       return const Center(child: CircularProgressIndicator());
     }
 
-    // 2. Error
     if (vm.state == ViewState.error) {
       print('-->_buildBookingContent-->error');
       return Center(
@@ -90,7 +87,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // 3. No data
     if (vm.bookedList.isEmpty) {
       print('-->_buildBookingContent-->empty');
       return EmptyState(
@@ -105,7 +101,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // 4. Data available
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
 

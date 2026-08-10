@@ -26,16 +26,7 @@ class MeetingRepository {
       fromJson: (json) {
         return EmployeeResponse.fromJson(json);
       },
-
-      onSuccess: (response) {
-        return response;
-      },
-
-      onError: (error) {
-        throw Exception(error);
-      },
     );
-
     return response;
   }
 
@@ -52,14 +43,6 @@ class MeetingRepository {
 
       fromJson: (json) {
         return VersionResponse.fromJson(json);
-      },
-
-      onSuccess: (response) {
-        return response;
-      },
-
-      onError: (error) {
-        throw Exception(error);
       },
     );
 
@@ -87,14 +70,6 @@ class MeetingRepository {
         // Status 0 = Failed
         throw Exception(response.message ?? 'Failed to get record');
       },
-
-      onSuccess: (response) {
-        return response;
-      },
-
-      onError: (error) {
-        throw Exception(error);
-      },
     );
   }
 
@@ -121,14 +96,6 @@ class MeetingRepository {
 
         // Status 0 = Failed
         throw Exception(response.message ?? 'Failed to get meeting room list');
-      },
-
-      onSuccess: (response) {
-        return response;
-      },
-
-      onError: (error) {
-        throw Exception(error);
       },
     );
   }
