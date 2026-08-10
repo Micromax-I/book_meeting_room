@@ -1,8 +1,8 @@
 import 'package:book_meeting_room/widget/ui_helper.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/app_colors.dart';
-import 'login_screen.dart';
+import '../../constants/app_colors.dart';
+import '../login/view/login_screen.dart';
 
 class SplashScreenNew extends StatefulWidget {
   const SplashScreenNew({super.key});

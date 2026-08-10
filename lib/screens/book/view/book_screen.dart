@@ -1,21 +1,18 @@
 import 'package:book_meeting_room/model/meeting_room_model.dart';
+import 'package:book_meeting_room/screens/book/viewmodel/booking_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-import '../constants/app_colors.dart';
-import '../model/generic_response.dart';
-import '../network/api_service_new.dart';
-import '../util/alert.dart';
-import '../util/preference_helper.dart';
-import '../widget/common_app_bar.dart';
-import '../widget/custom_date_picker_field.dart';
-import '../widget/custom_text_form_field.dart';
-import '../widget/ui_helper.dart';
+import '../../../constants/app_colors.dart';
+import '../../../util/preference_helper.dart';
+import '../../../widget/common_app_bar.dart';
+import '../../../widget/custom_date_picker_field.dart';
+import '../../../widget/custom_text_form_field.dart';
+import '../../../widget/ui_helper.dart';
 
 class BookScreen extends StatefulWidget {
-  final List<MeetingRoomModel> meetingRoomList;
-
-  const BookScreen({super.key, required this.meetingRoomList});
+  const BookScreen({super.key});
 
   @override
   State<BookScreen> createState() => _BookScreenState();
@@ -69,6 +66,9 @@ class _BookScreenState extends State<BookScreen> {
     super.initState();
     fromSlots = generateTimeSlots(startHour: 9, endHour: 18, interval: 30);
     // toSlots = generateTimeSlots(DateTime.now(), endHour: 18, interval: 30);
+    Future.microtask(() {
+      context.read<BookingViewModel>().loadMeetingRooms();
+    });
     _loadSavedData();
   }
 
@@ -85,6 +85,7 @@ class _BookScreenState extends State<BookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<BookingViewModel>();
     return Scaffold(
       appBar: CommonAppBar(title: 'Book Meeting Room', showBack: false),
       body: SafeArea(
@@ -130,7 +131,7 @@ class _BookScreenState extends State<BookScreen> {
                           decoration: dropdownDecoration,
                           value: selectedMeetingRoomId,
                           items:
-                              widget.meetingRoomList.map((room) {
+                              vm.meetingRooms.map((room) {
                                 return DropdownMenuItem<int>(
                                   value: room.MeetingRoomId,
                                   child: Text(room.MeetingRoomName),
@@ -203,7 +204,7 @@ class _BookScreenState extends State<BookScreen> {
                         SizedBox(height: 10),
 
                         SizedBox(height: 40),
-                        isLoading ? CircularProgressIndicator() : button(),
+                        isLoading ? CircularProgressIndicator() : button(vm),
                       ],
                     ),
                     SizedBox(height: 20),
@@ -240,17 +241,16 @@ class _BookScreenState extends State<BookScreen> {
       decoration: dropdownDecoration,
       hint: Text(hint),
       items:
-      /*from
-              ?*/ fromSlots
+          /*from
+              ?*/
+          fromSlots
+              .map((time) => DropdownMenuItem(value: time, child: Text(time)))
+              .toList(),
+      /*: toSlots
                   .map(
                     (time) => DropdownMenuItem(value: time, child: Text(time)),
                   )
-                  .toList()
-              /*: toSlots
-                  .map(
-                    (time) => DropdownMenuItem(value: time, child: Text(time)),
-                  )
-                  .toList()*/,
+                  .toList()*/
       validator: (value) => value == null ? validationMessage : null,
       onChanged: onChanged /*(value) {
         setState(() {
@@ -323,11 +323,8 @@ class _BookScreenState extends State<BookScreen> {
     );
   }
 
-  void addBooking() {
+  Future<void> addBooking(BookingViewModel vm) async {
     if (_formKey.currentState!.validate()) {
-      FocusScope.of(context).unfocus(); // hide keyboard
-      setState(() => isLoading = true);
-
       final body = {
         'MeetingRoomId': selectedMeetingRoomId,
         'Building': building.text,
@@ -339,38 +336,19 @@ class _BookScreenState extends State<BookScreen> {
       };
       print('Body-->$body');
 
-      ApiServiceNew.post(
-        endpoint: '/roombooking/bookedmeetingroom',
-        body: body,
-        fromJson:
-            (json) => GenericResponse<String>.fromJson(
-              json,
-              (json) => json.toString(),
-            ),
-        onSuccess: (response) {
-          setState(() => isLoading = false);
-
-          if (response.Status == 0) {
-            UiHelper.showErrorDialog(context, response.message!);
-          } else if (response.Status == 1) {
-            showAlertDialog(
-              context: context,
-              message: response.message!,
-              onOk: () {
-                Navigator.pop(context, true);
-              },
-            );
-          }
-        },
-        onError: (error) {
-          setState(() => isLoading = false);
-          UiHelper.showErrorDialog(context, error);
-        },
-      );
+      final success = await vm.saveBookingRecord(body: body);
+      print('Body-->success-->$success');
+      if (success) {
+        // Booking successful
+        Navigator.pop(context);
+      } else {
+        // Show backend message
+        UiHelper.showErrorDialog(context, vm.errorMessage);
+      }
     }
   }
 
-  button() {
+  button(BookingViewModel vm) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -389,7 +367,7 @@ class _BookScreenState extends State<BookScreen> {
           ],
         ),
         child: ElevatedButton.icon(
-          onPressed: addBooking,
+          onPressed: () => addBooking(vm),
           icon: const Icon(Icons.meeting_room, color: Colors.white),
           label: const Text(
             "BOOK MEETING ROOM",
@@ -443,7 +421,7 @@ class _BookScreenState extends State<BookScreen> {
     while (!current.isAfter(end)) {
       slots.add(
         '${current.hour.toString().padLeft(2, '0')}:'
-            '${current.minute.toString().padLeft(2, '0')}',
+        '${current.minute.toString().padLeft(2, '0')}',
       );
 
       current = current.add(Duration(minutes: interval));

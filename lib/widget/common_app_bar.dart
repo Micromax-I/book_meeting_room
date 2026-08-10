@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../screens/login_screen.dart';
+import '../screens/login/view/login_screen.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;

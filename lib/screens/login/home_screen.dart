@@ -1,14 +1,14 @@
 import 'package:book_meeting_room/model/meeting_detail.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/widget/user_layout.dart';
 import '../../model/generic_response.dart';
 import '../../model/meeting_room_model.dart';
 import '../../network/api_service_new.dart';
 import '../../util/preference_helper.dart';
 import '../../widget/common_app_bar.dart';
 import '../../widget/ui_helper.dart';
-import '../book_screen.dart';
-import '../user_layout.dart';
+import '../book/view/book_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int isAdmin;
@@ -87,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: ListTile(
                             //leading: IconData,
-                            title: Text(bookedList[index].Purpose!),
-                            subtitle: Text(bookedList[index].RoomName!),
+                            title: Text(bookedList[index].purpose),
+                            subtitle: Text(bookedList[index].roomName),
                           ),
                         ),
                       ),
@@ -183,9 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void openAddBookingScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => BookScreen(meetingRoomList: roomList),
-      ),
+      MaterialPageRoute(builder: (context) => BookScreen()),
     );
   }
 }

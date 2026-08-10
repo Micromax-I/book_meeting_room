@@ -1,51 +1,51 @@
 class MeetingDetail {
-  final int MeetingRoomId;
-  final String RoomName;
-  final String Building;
-  final String Floors;
-  final String StartDateTime;
-  final String EndDateTime;
-  final String Purpose;
-  final String Bookedby;
-  final String DeptName;
+  final int meetingRoomId;
+  final String roomName;
+  final String building;
+  final String floors;
+  final String startDateTime;
+  final String endDateTime;
+  final String purpose;
+  final String bookedBy;
+  final String deptName;
 
   MeetingDetail({
-    required this.MeetingRoomId,
-    required this.RoomName,
-    required this.Building,
-    required this.Floors,
-    required this.StartDateTime,
-    required this.EndDateTime,
-    required this.Purpose,
-    required this.Bookedby,
-    required this.DeptName,
+    required this.meetingRoomId,
+    required this.roomName,
+    required this.building,
+    required this.floors,
+    required this.startDateTime,
+    required this.endDateTime,
+    required this.purpose,
+    required this.bookedBy,
+    required this.deptName,
   });
 
   factory MeetingDetail.fromJson(Map<String, dynamic> json) {
     return MeetingDetail(
-      MeetingRoomId: json['MeetingRoomId'] ?? 0,
-      RoomName: json['RoomName']?.toString() ?? "",
-      Building: json['Building']?.toString() ?? "",
-      Floors: json['Floors']?.toString() ?? "",
-      StartDateTime: json['StartDateTime']?.toString() ?? "",
-      EndDateTime: json['EndDateTime']?.toString() ?? "",
-      Purpose: json['Purpose']?.toString() ?? "",
-      Bookedby: json['Bookedby']?.toString() ?? "",
-      DeptName: json['DeptName']?.toString() ?? "",
+      meetingRoomId: json['MeetingRoomId'] ?? 0,
+      roomName: json['RoomName'] ?? '',
+      building: json['Building'] ?? '',
+      floors: json['Floors'] ?? '',
+      startDateTime: json['StartDateTime'] ?? '',
+      endDateTime: json['EndDateTime'] ?? '',
+      purpose: json['Purpose'] ?? '',
+      bookedBy: json['Bookedby'] ?? '',
+      deptName: json['DeptName'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'MeetingRoomId': MeetingRoomId,
-      'RoomName': RoomName,
-      'Building': Building,
-      'Floors': Floors,
-      'StartDateTime': StartDateTime,
-      'EndDateTime': EndDateTime,
-      'Purpose': Purpose,
-      'Bookedby': Bookedby,
-      'DeptName': DeptName,
+      'MeetingRoomId': meetingRoomId,
+      'RoomName': roomName,
+      'Building': building,
+      'Floors': floors,
+      'StartDateTime': startDateTime,
+      'EndDateTime': endDateTime,
+      'Purpose': purpose,
+      'Bookedby': bookedBy,
+      'DeptName': deptName,
     };
   }
 }
