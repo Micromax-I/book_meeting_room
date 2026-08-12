@@ -1,5 +1,6 @@
 import '../../../core/base/base_viewmodel.dart';
 import '../../../model/meeting_detail.dart';
+import '../../../model/meeting_room_model.dart';
 import '../../../repository/meeting_repository.dart';
 
 class MeetingViewModel extends BaseViewModel {
@@ -8,6 +9,7 @@ class MeetingViewModel extends BaseViewModel {
   MeetingViewModel(this.repository);
 
   List<MeetingDetail> bookedList = [];
+  List<MeetingRoomModel> meetingRooms = [];
 
   Future<void> refresh() async {
     print('-->refresh');
@@ -29,6 +31,18 @@ class MeetingViewModel extends BaseViewModel {
       print(
         '-->loadBookedMeetingList-->bookedList after assign ${bookedList.length}',
       );
+      setSuccess();
+    } catch (e) {
+      setError(e.toString());
+    }
+  }
+
+  Future<void> loadMeetingRooms() async {
+    try {
+      setLoading();
+
+      meetingRooms = (await repository.getMeetingRoomList())!;
+
       setSuccess();
     } catch (e) {
       setError(e.toString());

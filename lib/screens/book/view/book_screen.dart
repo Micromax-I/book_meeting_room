@@ -223,7 +223,7 @@ class _BookScreenState extends State<BookScreen> {
       children: [
         Expanded(
           child: BookingTimeDropdown(
-            hint: 'Select From Time',
+            hint: 'From Time',
             value: selectedFromTime,
             items: fromSlots,
             validationMessage: 'Please select from time',
@@ -236,11 +236,11 @@ class _BookScreenState extends State<BookScreen> {
           ),
         ),
 
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
 
         Expanded(
           child: BookingTimeDropdown(
-            hint: 'Select To Time',
+            hint: 'To Time',
             value: selectedToTime,
             items: fromSlots,
             validationMessage: 'Please select to time',
@@ -294,7 +294,7 @@ class _BookScreenState extends State<BookScreen> {
       fromSlots = TimeSlotHelper.generateSlots(
         selectedDate: picked,
         startHour: 9,
-        endHour: 17,
+        endHour: 18,
         endMinute: 30,
         interval: 30,
       );
@@ -321,6 +321,31 @@ class _BookScreenState extends State<BookScreen> {
       return;
     }
 
+    if (selectedFromTime == "18:30") {
+      UiHelper.showErrorDialog(
+        context,
+        "Please select a valid From Time. 18:30 cannot be selected.",
+      );
+      return;
+    }
+    if(selectedFromTime == selectedToTime){
+      UiHelper.showErrorDialog(
+        context,
+        "From time and To time can not be same",
+      );
+      return;
+    }
+    final fromMinutes = _timeToMinutes(selectedFromTime!);
+    final toMinutes = _timeToMinutes(selectedToTime!);
+
+    if (toMinutes <= fromMinutes) {
+      UiHelper.showErrorDialog(
+        context,
+        "To time must be later than From time",
+      );
+      return;
+    }
+
     final body = _buildBookingRequest();
 
     final success = await vm.saveBookingRecord(body: body);
@@ -328,7 +353,7 @@ class _BookScreenState extends State<BookScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.pop(context);
+      Navigator.pop(context, true);
       return;
     }
 
@@ -345,5 +370,14 @@ class _BookScreenState extends State<BookScreen> {
     purposeController.dispose();
 
     super.dispose();
+  }
+
+  int _timeToMinutes(String time) {
+    final parts = time.split(':');
+
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+
+    return (hour * 60) + minute;
   }
 }

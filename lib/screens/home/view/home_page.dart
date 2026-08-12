@@ -8,6 +8,7 @@ import '../../../widget/common_app_bar.dart';
 import '../../book/view/book_screen.dart';
 import '../viewmodel/meeting_viewmodel.dart';
 import '../widget/booked_room_card.dart';
+import '../widget/meeting_day_calendar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.event_note),
 
         onPressed: () async {
-          openAddBookingScreen();
+          openAddBookingScreen(vm);
         },
       ),
 
@@ -51,7 +52,9 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 30),
 
-              Expanded(child: _buildBookingContent(vm)),
+              Expanded(child: MeetingDayCalendar(meetings: vm.bookedList)),
+
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -97,7 +100,7 @@ class _HomePageState extends State<HomePage> {
             "Tap the Book button to book your first meeting booking for the day.",
         buttonText: "Book Meeting Room",
         onPressed: () {
-          openAddBookingScreen();
+          openAddBookingScreen(vm);
         },
       );
     }
@@ -122,10 +125,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void openAddBookingScreen() {
-    Navigator.push(
+  Future<void> openAddBookingScreen(MeetingViewModel vm) async {
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => BookScreen()),
+      MaterialPageRoute(builder: (context) => const BookScreen()),
     );
+
+    // Called when BookScreen is popped
+    if (result == true) {
+      await vm.loadBookedMeetingList();
+    }
   }
 }
