@@ -1,15 +1,14 @@
-import 'package:book_meeting_room/cab_booking_app.dart';
 import 'package:book_meeting_room/repository/meeting_repository.dart';
 import 'package:book_meeting_room/screens/book/viewmodel/booking_view_model.dart';
 import 'package:book_meeting_room/screens/home/viewmodel/meeting_viewmodel.dart';
 import 'package:book_meeting_room/screens/login/viewmodel/login_view_model.dart';
+import 'package:book_meeting_room/screens/splash/splash_screen_new.dart';
 import 'package:book_meeting_room/util/preference_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PreferenceHelper.init();
 
   runApp(
     MultiProvider(
@@ -44,12 +43,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cab Booking',
+      title: 'Room Booking',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const CabBookingApp(),
+      home: const SplashScreenNew(),
     );
   }
 }

@@ -68,6 +68,10 @@ flutter_native_splash:
   fullscreen: true
   android_gravity: center
 
+  android_12:
+    color: "#E3F2FD"
+    image: assets/images/logo_bg.png
+
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

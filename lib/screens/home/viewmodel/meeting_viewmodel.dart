@@ -48,4 +48,16 @@ class MeetingViewModel extends BaseViewModel {
       setError(e.toString());
     }
   }
+
+  Future<void> startStopMeeting() async {
+    print('-->loadBookedMeetingList');
+    try {
+      setLoading();
+      final result = await repository.loadBookedMeetingList();
+      bookedList = result!;
+      setSuccess();
+    } catch (e) {
+      setError(e.toString());
+    }
+  }
 }

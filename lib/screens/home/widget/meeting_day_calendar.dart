@@ -110,7 +110,7 @@ class MeetingDayCalendar extends StatelessWidget {
     // Very small appointment
     if (height < 40) {
       return Text(
-        appointment.subject,
+        appointment.location!,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
 
@@ -131,7 +131,7 @@ class MeetingDayCalendar extends StatelessWidget {
 
         children: [
           Text(
-            appointment.subject,
+            appointment.location!,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
 
@@ -142,9 +142,9 @@ class MeetingDayCalendar extends StatelessWidget {
             ),
           ),
 
-          if (appointment.location != null)
+
             Text(
-              appointment.location!,
+              appointment.subject,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
 
@@ -162,7 +162,7 @@ class MeetingDayCalendar extends StatelessWidget {
 
       children: [
         Text(
-          appointment.subject,
+          appointment.location!,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
 
@@ -176,7 +176,7 @@ class MeetingDayCalendar extends StatelessWidget {
         const SizedBox(height: 3),
 
         Text(
-          appointment.notes ?? '',
+          appointment.subject ?? '',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
 
@@ -289,8 +289,8 @@ class MeetingDayCalendar extends StatelessWidget {
             // Details
             _buildDetailRow(
               Icons.meeting_room_outlined,
-              'Room',
-              meeting.location!,
+              'Time',
+              '${formatTime(meeting.startTime)} - ${formatTime(meeting.endTime)}'
             ),
 
             /* _buildDetailRow(
@@ -313,6 +313,8 @@ class MeetingDayCalendar extends StatelessWidget {
               'Purpose',
               meeting.subject,
             ),
+            
+            ElevatedButton(onPressed: (){}, child: Text('Start'))
           ],
         ),
       ),

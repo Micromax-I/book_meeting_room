@@ -2,6 +2,7 @@ import 'package:book_meeting_room/widget/ui_helper.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_colors.dart';
+import '../../util/preference_helper.dart';
 import '../login/view/login_screen.dart';
 
 class SplashScreenNew extends StatefulWidget {
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreenNew>
   @override
   void initState() {
     super.initState();
-
+    _initialize();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
@@ -35,6 +36,11 @@ class _SplashScreenState extends State<SplashScreenNew>
     _controller.forward().whenComplete(() {
       gotoLoginScreen();
     });
+  }
+  Future<void> _initialize() async {
+    await PreferenceHelper.init();
+
+    // Other initialization
   }
 
   void gotoLoginScreen() {

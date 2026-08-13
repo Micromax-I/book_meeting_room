@@ -5,8 +5,7 @@ import 'package:dio/dio.dart';
 class ApiServiceNew {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://ess.bhagwati.co/meeting/Api',
-      //baseUrl: 'http://10.111.225.143/essappservice/Api',
+      baseUrl: 'http://10.111.225.52/meeting/api',
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       headers: {
