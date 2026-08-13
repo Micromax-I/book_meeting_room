@@ -314,7 +314,7 @@ class MeetingDayCalendar extends StatelessWidget {
               meeting.subject,
             ),
             
-            ElevatedButton(onPressed: (){}, child: Text('Start'))
+           // ElevatedButton(onPressed: (){}, child: Text('Start'))
           ],
         ),
       ),
