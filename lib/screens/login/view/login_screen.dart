@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loadSavedData() async {
     final vm = context.read<LoginViewModel>();
 
-    final savedData =  vm.loadSavedData();
+    final savedData = vm.loadSavedData();
 
     if (!mounted) return;
 
@@ -173,95 +173,97 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 30),
 
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(25),
-
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(.75),
-
-                            borderRadius: BorderRadius.circular(25),
-
-                            border: Border.all(color: Colors.white),
-
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(.08),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-
-                          child: Column(
-                            children: [
-                              AppTextField(
-                                controller: userName,
-                                hintText: 'Employee ID',
-                                prefixIcon: Icons.person,
-                                validatorMessage: 'Enter Employee ID',
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              AppTextField(
-                                controller: password,
-                                hintText: 'Password',
-                                prefixIcon: Icons.lock,
-                                validatorMessage: 'Enter Password',
-                                obscureText: !isPasswordVisible,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    isPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      isPasswordVisible = !isPasswordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              RememberMe(
-                                value: rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    rememberMe = value;
-                                  });
-                                },
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              vm.isLoading
-                                  ? Center(child: CircularProgressIndicator())
-                                  : ButtonUi(
-                                    icon: Icons.login,
-                                    title: 'LOGIN',
-                                    onPressed: () {
-                                      verifyUser();
-                                    },
-                                  ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildLoginTextUi(vm),
 
                     const SizedBox(height: 30),
                   ],
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginTextUi(LoginViewModel vm) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(25),
+
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+
+        child: Container(
+          padding: const EdgeInsets.all(20),
+
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(.75),
+
+            borderRadius: BorderRadius.circular(25),
+
+            border: Border.all(color: Colors.white),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.08),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+
+          child: Column(
+            children: [
+              AppTextField(
+                controller: userName,
+                hintText: 'Employee ID',
+                prefixIcon: Icons.person,
+                validatorMessage: 'Enter Employee ID',
+              ),
+
+              const SizedBox(height: 20),
+
+              AppTextField(
+                controller: password,
+                hintText: 'Password',
+                prefixIcon: Icons.lock,
+                validatorMessage: 'Enter Password',
+                obscureText: !isPasswordVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isPasswordVisible = !isPasswordVisible;
+                    });
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              RememberMe(
+                value: rememberMe,
+                onChanged: (value) {
+                  setState(() {
+                    rememberMe = value;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              vm.isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ButtonUi(
+                    icon: Icons.login,
+                    title: 'LOGIN',
+                    onPressed: () {
+                      verifyUser();
+                    },
+                  ),
+            ],
           ),
         ),
       ),

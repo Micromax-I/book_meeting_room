@@ -298,18 +298,6 @@ class MeetingDayCalendar extends StatelessWidget {
               'Time',
               '${formatTime(meeting.startTime)} - ${formatTime(meeting.endTime)}',
             ),
-
-            /* _buildDetailRow(
-              Icons.business_outlined,
-              'Building',
-              meeting.building,
-            ),*/
-
-            /*_buildDetailRow(
-              Icons.layers_outlined,
-              'Floor',
-              meeting.floors,
-            ),*/
             _buildDetailRow(Icons.person_outline, 'Booked By', parts[0]),
 
             _buildDetailRow(Icons.groups_outlined, 'Department', parts[1]),
@@ -320,9 +308,14 @@ class MeetingDayCalendar extends StatelessWidget {
               meeting.subject,
             ),
 
-            userId.toUpperCase() == parts[2]
-                ? _buildDeleteButton(context, meeting)
-                : SizedBox(),
+            SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child:
+                  userId.toUpperCase() == parts[2]
+                      ? _buildDeleteButton(context, meeting)
+                      : SizedBox(),
+            ),
           ],
         ),
       ),
@@ -356,8 +349,9 @@ class MeetingDayCalendar extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          Navigator.pop(context);
-          onResult(meeting.id.toString());
+          _showDeleteConfirmation(context, meeting);
+          // Navigator.pop(context);
+          // onResult(meeting.id.toString());
         },
         icon: Icon(Icons.delete, color: Colors.white),
         label: Text(
@@ -425,5 +419,63 @@ class MeetingDayCalendar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(
+    BuildContext context,
+    Appointment meeting,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red),
+              SizedBox(width: 10),
+              Text('Confirm Delete'),
+            ],
+          ),
+          content: const Text(
+            'Are you sure you want to delete this meeting?',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      // Close the original meeting details dialog
+      Navigator.pop(context);
+
+      // Return meeting ID to the main screen
+      onResult(meeting.id.toString());
+    }
   }
 }
