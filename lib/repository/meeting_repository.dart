@@ -118,4 +118,23 @@ class MeetingRepository {
     );
     return response;
   }
+
+  Future<GenericResponse<List<String>>?> deleteBooking({
+    required Map<String, dynamic> body,
+  }) async {
+    final response = await ApiServiceNew.post(
+      endpoint: '/roombooking/bookingcancellation',
+      body: body,
+      fromJson: (json) {
+        print('Body-->json-->$json');
+        return GenericResponse<List<String>>.fromJson(json, (data) {
+          if (data == null) {
+            return <String>[];
+          }
+          return (data as List<dynamic>).map((e) => e.toString()).toList();
+        });
+      },
+    );
+    return response;
+  }
 }

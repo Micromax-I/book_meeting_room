@@ -7,8 +7,15 @@ import 'meeting_calendar_data_source.dart';
 
 class MeetingDayCalendar extends StatelessWidget {
   final List<MeetingDetail> meetings;
+  final ValueChanged<String> onResult;
+  final String userId;
 
-  const MeetingDayCalendar({super.key, required this.meetings});
+  const MeetingDayCalendar({
+    super.key,
+    required this.meetings,
+    required this.onResult,
+    required this.userId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +78,7 @@ class MeetingDayCalendar extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: SingleChildScrollView(
-            child: buildMeetingDetailsCard(appointment),
+            child: buildMeetingDetailsCard(context, appointment),
           ),
         );
       },
@@ -142,14 +149,13 @@ class MeetingDayCalendar extends StatelessWidget {
             ),
           ),
 
+          Text(
+            appointment.subject,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
 
-            Text(
-              appointment.subject,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-
-              style: const TextStyle(color: Colors.white, fontSize: 9),
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 9),
+          ),
         ],
       );
     }
@@ -220,7 +226,7 @@ class MeetingDayCalendar extends StatelessWidget {
     return DateFormat('HH:mm').format(dateTime);
   }
 
-  Widget buildMeetingDetailsCard(Appointment meeting) {
+  Widget buildMeetingDetailsCard(BuildContext context, Appointment meeting) {
     final parts = meeting.notes?.split('~') ?? [];
     return Card(
       elevation: 0,
@@ -290,7 +296,7 @@ class MeetingDayCalendar extends StatelessWidget {
             _buildDetailRow(
               Icons.meeting_room_outlined,
               'Time',
-              '${formatTime(meeting.startTime)} - ${formatTime(meeting.endTime)}'
+              '${formatTime(meeting.startTime)} - ${formatTime(meeting.endTime)}',
             ),
 
             /* _buildDetailRow(
@@ -313,9 +319,55 @@ class MeetingDayCalendar extends StatelessWidget {
               'Purpose',
               meeting.subject,
             ),
-            
-           // ElevatedButton(onPressed: (){}, child: Text('Start'))
+
+            userId.toUpperCase() == parts[2]
+                ? _buildDeleteButton(context, meeting)
+                : SizedBox(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context, Appointment meeting) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
+          colors: [Color(0xff1565C0), Color(0xff42A5F5)],
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(.35),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+
+          shadowColor: Colors.transparent,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+          onResult(meeting.id.toString());
+        },
+        icon: Icon(Icons.delete, color: Colors.white),
+        label: Text(
+          'Deleted',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
         ),
       ),
     );

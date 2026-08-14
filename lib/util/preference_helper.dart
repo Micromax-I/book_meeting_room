@@ -1,4 +1,3 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceHelper {
@@ -37,11 +36,11 @@ class PreferenceHelper {
     await _prefs?.setStringList(key, value);
   }
 
-  Future<String?> getString(String key) async {
+  String? getString(String key) {
     return _prefs?.getString(key);
   }
 
-  Future<bool?> getBool(String key) async {
+  bool? getBool(String key) {
     return _prefs?.getBool(key);
   }
 

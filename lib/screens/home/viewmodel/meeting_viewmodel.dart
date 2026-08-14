@@ -2,11 +2,14 @@ import '../../../core/base/base_viewmodel.dart';
 import '../../../model/meeting_detail.dart';
 import '../../../model/meeting_room_model.dart';
 import '../../../repository/meeting_repository.dart';
+import '../../../util/preference_helper.dart';
 
 class MeetingViewModel extends BaseViewModel {
   final MeetingRepository repository;
 
-  MeetingViewModel(this.repository);
+  final PreferenceHelper prefs;
+
+  MeetingViewModel({required this.repository, required this.prefs});
 
   List<MeetingDetail> bookedList = [];
   List<MeetingRoomModel> meetingRooms = [];
@@ -14,6 +17,16 @@ class MeetingViewModel extends BaseViewModel {
   Future<void> refresh() async {
     print('-->refresh');
     await loadBookedMeetingList();
+  }
+
+  String loadSavedData() {
+    final userId = prefs.getString('userName') ?? '';
+    final userName = prefs.getString('name') ?? '';
+
+    print('userId-->$userId');
+    print('userName-->$userName');
+
+    return '$userId~$userName';
   }
 
   Future<void> loadBookedMeetingList() async {
@@ -37,7 +50,7 @@ class MeetingViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> loadMeetingRooms() async {
+  /*Future<void> loadMeetingRooms() async {
     try {
       setLoading();
 
@@ -47,7 +60,7 @@ class MeetingViewModel extends BaseViewModel {
     } catch (e) {
       setError(e.toString());
     }
-  }
+  }*/
 
   Future<void> startStopMeeting() async {
     print('-->loadBookedMeetingList');
@@ -58,6 +71,26 @@ class MeetingViewModel extends BaseViewModel {
       setSuccess();
     } catch (e) {
       setError(e.toString());
+    }
+  }
+
+  Future<bool> deleteBooking({required Map<String, Object?> body}) async {
+    try {
+      setLoading();
+      final response = await repository.deleteBooking(body: body);
+      print('Body-->response-->${response}');
+      print('Body-->response-->${response?.Status}');
+      if (response?.Status == 1) {
+        setSuccess();
+        return true;
+      }
+      setError(response?.message ?? 'Some Error occurred while saving');
+
+      notifyListeners();
+      return false;
+    } catch (e) {
+      setError(e.toString().replaceFirst('Exception: ', ''));
+      return false;
     }
   }
 }

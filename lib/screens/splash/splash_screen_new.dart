@@ -39,7 +39,6 @@ class _SplashScreenState extends State<SplashScreenNew>
   }
   Future<void> _initialize() async {
     await PreferenceHelper.init();
-
     // Other initialization
   }
 

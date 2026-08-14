@@ -24,7 +24,10 @@ void main() async {
         ),
         ChangeNotifierProvider<MeetingViewModel>(
           create:
-              (context) => MeetingViewModel(context.read<MeetingRepository>()),
+              (context) => MeetingViewModel(
+                repository: context.read<MeetingRepository>(),
+                prefs: PreferenceHelper()
+              ),
         ),
 
         ChangeNotifierProvider<BookingViewModel>(

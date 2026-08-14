@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/base/base_viewmodel.dart';
-import '../../../core/widget/empty_state.dart';
 import '../../../core/widget/greeting_header.dart';
 import '../../../widget/common_app_bar.dart';
+import '../../../widget/ui_helper.dart';
 import '../../book/view/book_screen.dart';
 import '../viewmodel/meeting_viewmodel.dart';
-import '../widget/booked_room_card.dart';
 import '../widget/meeting_day_calendar.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,12 +16,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String userName = "";
+  String userId = "";
+
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
+    Future.microtask(() async {
+      final vm = context.read<MeetingViewModel>();
       context.read<MeetingViewModel>().loadBookedMeetingList();
+      final savedData = vm.loadSavedData();
+      final user = savedData.split('~');
+      if (user.length >= 2) {
+        userId = user[0];
+        userName = user[1];
+      }
+
+      print('userId-->$userId');
     });
   }
 
@@ -52,76 +61,32 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 30),
 
-              Expanded(child: MeetingDayCalendar(meetings: vm.bookedList)),
+              Expanded(
+                child: MeetingDayCalendar(
+                  meetings: vm.bookedList,
+
+                  onResult: (meetingId) async {
+                    print('meetingId-->$meetingId');
+                    Map<String, dynamic> body = {'Bookingid': meetingId};
+                    final success = vm.deleteBooking(body: body);
+                    if (!mounted) return;
+
+                    if (await success) {
+                      vm.loadBookedMeetingList();
+                      return;
+                    }
+
+                    UiHelper.showErrorDialog(context, vm.errorMessage);
+                  },
+                  userId: userId,
+                ),
+              ),
 
               const SizedBox(height: 30),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildBookingContent(MeetingViewModel vm) {
-    if (vm.state == ViewState.loading) {
-      print('-->_buildBookingContent-->loading');
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (vm.state == ViewState.error) {
-      print('-->_buildBookingContent-->error');
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 50),
-
-            const SizedBox(height: 10),
-
-            Text(vm.errorMessage, textAlign: TextAlign.center),
-
-            const SizedBox(height: 15),
-
-            ElevatedButton(
-              onPressed: vm.loadBookedMeetingList,
-              child: const Text("Retry"),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (vm.bookedList.isEmpty) {
-      print('-->_buildBookingContent-->empty');
-      return EmptyState(
-        icon: Icons.event_note,
-        title: "No Booking Yet",
-        subtitle:
-            "Tap the Book button to book your first meeting booking for the day.",
-        buttonText: "Book Meeting Room",
-        onPressed: () {
-          openAddBookingScreen(vm);
-        },
-      );
-    }
-
-    return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(),
-
-      itemCount: vm.bookedList.length,
-
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-
-      itemBuilder: (_, index) {
-        final bookedRoom = vm.bookedList[index];
-        print('-->_buildBookingContent-->bookedRoom> ${bookedRoom.roomName}');
-        return BookedRoomCard(
-          bookedRoom: bookedRoom,
-          onTap: () {
-            // Handle booking click
-          },
-        );
-      },
     );
   }
 

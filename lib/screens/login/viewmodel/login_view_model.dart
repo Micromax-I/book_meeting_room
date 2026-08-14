@@ -90,16 +90,16 @@ class LoginViewModel extends BaseViewModel {
     await prefs.setInt('CabAccess', response.Cabaccess ?? 0);
   }
 
-  Future<LoginSavedData> loadSavedData() async {
-    final remember = await prefs.getBool('rememberMe') ?? false;
+  LoginSavedData loadSavedData()  {
+    final remember =  prefs.getBool('rememberMe') ?? false;
 
     if (!remember) {
       return LoginSavedData(rememberMe: false, userName: '', password: '');
     }
 
-    final userName = await prefs.getString('userName') ?? '';
+    final userName =  prefs.getString('userName') ?? '';
 
-    final password = await prefs.getString('password') ?? '';
+    final password =  prefs.getString('password') ?? '';
 
     return LoginSavedData(
       rememberMe: true,

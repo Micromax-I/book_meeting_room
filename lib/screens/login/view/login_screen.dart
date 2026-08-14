@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loadSavedData() async {
     final vm = context.read<LoginViewModel>();
 
-    final savedData = await vm.loadSavedData();
+    final savedData =  vm.loadSavedData();
 
     if (!mounted) return;
 

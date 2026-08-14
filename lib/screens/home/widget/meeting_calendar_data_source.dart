@@ -17,8 +17,8 @@ class MeetingCalendarDataSource extends CalendarDataSource {
             subject: meeting.purpose,
             location: meeting.roomName,
             color: _getRoomColor(meeting.meetingRoomId),
-            id: meeting.meetingRoomId,
-            notes: '${meeting.bookedBy}~${meeting.deptName}',
+            id: meeting.bookingId,
+            notes: '${meeting.bookedBy}~${meeting.deptName}~${meeting.bookedById.toUpperCase()}',
 
             //recurrenceRule: meeting.floors,
             //startTimeZone: meeting.deptName,
