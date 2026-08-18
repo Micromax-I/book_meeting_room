@@ -32,7 +32,6 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.2.2
   dio: ^5.4.0
-  retrofit: ^4.0.3
   json_annotation: ^4.8.1
   package_info_plus: ^8.3.1
   open_filex: ^4.5.0
