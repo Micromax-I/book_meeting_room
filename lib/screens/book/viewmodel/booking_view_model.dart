@@ -26,8 +26,8 @@ class BookingViewModel extends BaseViewModel {
     try {
       setLoading();
       final response = await repository.saveBookingRecord(body: body);
-      print('Body-->response-->${response}');
-      print('Body-->response-->${response?.Status}');
+      // print('Body-->response-->${response}');
+      // print('Body-->response-->${response?.Status}');
       if (response?.Status == 1) {
         setSuccess();
         return true;

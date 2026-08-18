@@ -64,7 +64,7 @@ dev_dependencies:
 
 
 flutter_native_splash:
-  color: "#F5F7FA"  # Your splash background color
+  color: "#f1a44a"  # Your splash background color
   image: assets/images/logo_bg.png
   android: true
   ios: true
@@ -72,7 +72,7 @@ flutter_native_splash:
   android_gravity: center
 
   android_12:
-    color: "#E3F2FD"
+    color: "#f1a44a"
     image: assets/images/logo_bg.png
 
 
@@ -126,7 +126,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-flutter_launcher_icons:
+flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png" # Path to your icon image

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:permission_handler/permission_handler.dart';
 
 class UpdateDialog extends StatefulWidget {
@@ -35,7 +34,8 @@ class _UpdateDialogState extends State<UpdateDialog> {
 
     // Get app-specific directory
     Directory dir =
-        await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+        await getExternalStorageDirectory() ??
+        await getApplicationDocumentsDirectory();
     String filePath = "${dir.path}/update.apk";
     File file = File(filePath);
 
@@ -71,9 +71,9 @@ class _UpdateDialogState extends State<UpdateDialog> {
           file.path,
           type: "application/vnd.android.package-archive",
         );
-        debugPrint("Install result: $result");
+        // debugPrint("Install result: $result");
       } catch (e) {
-        debugPrint("Install error: $e");
+        // debugPrint("Install error: $e");
       }
     }
   }
@@ -82,16 +82,19 @@ class _UpdateDialogState extends State<UpdateDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(status),
-      content: downloading
-          ? Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LinearProgressIndicator(value: progress > 0 ? progress : null),
-          SizedBox(height: 12),
-          Text("${(progress * 100).toStringAsFixed(0)}%"),
-        ],
-      )
-          : Text("Update available. Please update app before proceeding."),
+      content:
+          downloading
+              ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(
+                    value: progress > 0 ? progress : null,
+                  ),
+                  SizedBox(height: 12),
+                  Text("${(progress * 100).toStringAsFixed(0)}%"),
+                ],
+              )
+              : Text("Update available. Please update app before proceeding."),
       actions: [
         TextButton(
           onPressed: () => SystemNavigator.pop(),

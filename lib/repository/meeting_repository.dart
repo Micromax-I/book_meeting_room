@@ -107,7 +107,7 @@ class MeetingRepository {
       endpoint: '/roombooking/bookedmeetingroom',
       body: body,
       fromJson: (json) {
-        print('Body-->json-->$json');
+        // print('Body-->json-->$json');
         return GenericResponse<List<String>>.fromJson(json, (data) {
           if (data == null) {
             return <String>[];
@@ -126,7 +126,7 @@ class MeetingRepository {
       endpoint: '/roombooking/bookingcancellation',
       body: body,
       fromJson: (json) {
-        print('Body-->json-->$json');
+        // print('Body-->json-->$json');
         return GenericResponse<List<String>>.fromJson(json, (data) {
           if (data == null) {
             return <String>[];

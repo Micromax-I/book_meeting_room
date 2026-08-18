@@ -15,7 +15,7 @@ Future<void> showAlertDialog({
     builder: (dialogContext) {
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text("Book Cab"),
+        title: Text("Book Meeting"),
         content: Text(message),
         actions: [
           TextButton(

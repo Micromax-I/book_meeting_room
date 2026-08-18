@@ -30,10 +30,10 @@ class ApiServiceNew {
         throw Exception('Error: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      log('GET Error: ${e.message}');
+      // log('GET Error: ${e.message}');
       throw Exception(e.message ?? 'Unknown error');
     } catch (e) {
-      log('Generic GET Error: $e');
+      // log('Generic GET Error: $e');
       throw Exception(e.toString());
     }
     return null;
@@ -55,10 +55,10 @@ class ApiServiceNew {
         throw Exception('Error: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      log('POST Error: ${e.message}');
+      // log('POST Error: ${e.message}');
       throw Exception('${e.message} ?? Unknown error');
     } catch (e) {
-      log('Generic POST Error: $e');
+      // log('Generic POST Error: $e');
       throw Exception(e.toString());
     }
   }

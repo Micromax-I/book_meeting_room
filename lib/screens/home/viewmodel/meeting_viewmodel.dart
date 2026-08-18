@@ -38,40 +38,19 @@ class MeetingViewModel extends BaseViewModel {
   }
 
   Future<void> loadBookedMeetingList() async {
-    print('-->loadBookedMeetingList');
     try {
       setLoading();
-      print('-->loadBookedMeetingList-->bookedList Size ${bookedList.length}');
       bookedList.clear();
-      print(
-        '-->loadBookedMeetingList-->bookedList after clear ${bookedList.length}',
-      );
+
       final result = await repository.loadBookedMeetingList();
-      print('-->loadBookedMeetingList-->result after assign ${result!.length}');
       bookedList = result!;
-      print(
-        '-->loadBookedMeetingList-->bookedList after assign ${bookedList.length}',
-      );
       setSuccess();
     } catch (e) {
       setError(e.toString());
     }
   }
 
-  /*Future<void> loadMeetingRooms() async {
-    try {
-      setLoading();
-
-      meetingRooms = (await repository.getMeetingRoomList())!;
-
-      setSuccess();
-    } catch (e) {
-      setError(e.toString());
-    }
-  }*/
-
   Future<void> startStopMeeting() async {
-    print('-->loadBookedMeetingList');
     try {
       setLoading();
       final result = await repository.loadBookedMeetingList();
@@ -86,8 +65,6 @@ class MeetingViewModel extends BaseViewModel {
     try {
       setLoading();
       final response = await repository.deleteBooking(body: body);
-      print('Body-->response-->${response}');
-      print('Body-->response-->${response?.Status}');
       if (response?.Status == 1) {
         setSuccess();
         return true;
