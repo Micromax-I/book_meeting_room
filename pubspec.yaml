@@ -55,6 +55,9 @@ dependencies:
   #meeting
   syncfusion_flutter_calendar: ^34.2.2
 
+  #Showcase
+  showcaseview: ^5.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -29,6 +29,14 @@ class MeetingViewModel extends BaseViewModel {
     return '$userId~$userName';
   }
 
+  bool isTourCompleted() {
+    return prefs.getBool('showcase_completed') ?? false;
+  }
+
+  void saveTourCompleted() {
+    prefs.setBool('showcase_completed', true);
+  }
+
   Future<void> loadBookedMeetingList() async {
     print('-->loadBookedMeetingList');
     try {
