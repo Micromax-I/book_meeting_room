@@ -40,9 +40,9 @@ dependencies:
   path_provider: ^2.1.1
   intl: ^0.20.2
   flutter_launcher_icons: ^0.14.3
-  flutter_native_splash: ^2.4.6
   # State Management
   provider: ^6.1.5
+  flutter_native_splash: ^2.4.6
 
   # Dependency Injection
   get_it: ^8.2.0
@@ -61,20 +61,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
-flutter_native_splash:
-  color: "#f1a44a"  # Your splash background color
-  image: assets/images/logo_bg.png
-  android: true
-  ios: true
-  fullscreen: true
-  android_gravity: center
-
-  android_12:
-    color: "#f1a44a"
-    image: assets/images/logo_bg.png
-
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -125,6 +111,20 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/logo_bg.png
+
+  android: true
+  ios: true
+
+  android_gravity: center
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/logo_bg.png
+    icon_background_color: "#FFFFFF"
 
 flutter_icons:
   android: true
